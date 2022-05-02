@@ -1,0 +1,16 @@
+.button1{
+    background-color: "#ED7014";
+    color: white;
+    font-size: large;
+}
+.navhere{
+    position: relative;
+}
+@media (max-width:767.98px){
+    .toggle{
+        display: flex;
+    }
+}
+.toggle{
+    display: none;
+}

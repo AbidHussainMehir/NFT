@@ -4,6 +4,11 @@ import axios from "axios";
 import { withRouter } from "react-router";
 import AuctionModal from "./AuctionModal";
 import Web3 from "web3";
+import {
+  nftMarketContractAddress_Abi,
+  nftMarketContractAddress,
+} from "../Utils/Contract";
+import { loadWeb3 } from "../../components/Api/api";
 
 const initData = {
   pre_heading: "Auctions",
@@ -200,8 +205,27 @@ class AuctionsTwo extends Component {
     isOpen: false,
     currentLoad: 0,
   };
+
   openModal = () => this.setState({ isOpen: true });
   closeModal = () => this.setState({ isOpen: false });
+  fetchNFTs = async () => {
+    let acc = await loadWeb3();
+    const web3 = window.web3;
+
+    console.log("web3", web3);
+
+    let getItems = new web3.eth.Contract(
+      nftMarketContractAddress_Abi,
+      nftMarketContractAddress
+    );
+    let nftContractInstance = new web3.eth.Contract(
+      nftMarketContractAddress_Abi,
+      nftMarketContractAddress
+    );
+
+    const getAll = await getItems.methods.idToMarketItem(1).call();
+    console.log("getAll", getAll);
+  };
   fetchImageObject = async () => {
     try {
       let resp;
@@ -311,7 +335,6 @@ class AuctionsTwo extends Component {
             this.fetchImageObject();
           }
         );
-        console.log(this.state.liveAuctions);
       }
     } catch (error) {
       this.setState(() => ({ error }));
@@ -328,19 +351,38 @@ class AuctionsTwo extends Component {
     } else {
     }
   };
+  auction = async () => {
+    const res = await axios.get(
+      `https://wire-nft.herokuapp.com/get_auctions_list`
+    );
+    console.log("ressssssss", res);
+    this.setState({
+      liveAuctions: res.data.data,
+      currentLoad: res.data.data.length > 8 ? 8 : res.data.data.length,
+    });
+    return res;
+  };
+
   componentDidMount() {
     this._isMounted = 1;
-
     this.setState({
       initData: initData,
       data: data,
     });
 
-    this.getLiveAuction();
+    this.fetchNFTs();
+    // this.getLiveAuction();
+    this.auction();
   }
+
   render() {
     var { liveAuctions } = this.state;
     const { currentLoad } = this.state;
+    const handleOpenModel = () => {
+      this.setState({ isOpen: true });
+    };
+    console.log("liveAuctions", liveAuctions);
+    console.log("currentLoad", currentLoad);
 
     return (
       <section className="live-auctions-area load-more">
@@ -351,6 +393,7 @@ class AuctionsTwo extends Component {
               <div className="intro text-center">
                 <span>{this.state.initData.pre_heading}</span>
                 <h3 className="mt-3 mb-3">{this.state.initData.heading}</h3>
+                {console.log("isOpen", this.state.isOpen)}
 
                 {this.state.isOpen ? (
                   <AuctionModal
@@ -379,10 +422,11 @@ class AuctionsTwo extends Component {
                         margin: "40px",
                       }}
                       onClick={() =>
-                        this.props.history.push(
-                          `/details/${item.token.id}`,
-                          this.state.item
-                        )
+                        // this.props.history.push(
+                        //   `/details/${item.token.id}`,
+                        //   this.state.item
+                        // )
+                        handleOpenModel()
                       }
                       className="mr-5 card"
                     >
@@ -400,33 +444,37 @@ class AuctionsTwo extends Component {
                           <div className="countdown-times mb-3">
                             <div
                               className="countdown d-flex justify-content-center"
-                              data-date={item.date}
+                              data-date={item?.bidEndTime}
                             />
                           </div>
                           <h5
                             onClick={() =>
-                              this.props.history.push(
-                                `/details/${item.token.id}`,
-                                this.state.data
-                              )
+                              // this.props.history.push(
+                              //   `/details/${item.token.id}`,
+                              //   this.state.data
+                              // )
+                              handleOpenModel()
                             }
                             className="mb-0"
                           >
-                            {item.token.name}
+                            {item?.tokenId}
                           </h5>
+                          <h6 className="mb-0 mt-2">{item?.price}</h6>
                           <a className="seller d-flex align-items-center my-3">
                             <span
                               className=""
                               style={{ fontSize: "10px", fontWeight: "bold" }}
                             >
-                              {item.owner}
+                              {item?.owner}
                             </span>
                           </a>
                           <div className="card-bottom d-flex justify-content-between">
-                            <span>
-                              {Web3.utils.fromWei(item.reservePrice, "ether")}{" "}
+                            {/* <span>
+                              {Web3.utils
+                                .fromWei(item?.reservePrice, "ether")
+                                .toString()}
                               ETH
-                            </span>
+                            </span> */}
                             {/* <span>  <Timer
                       start={liveAuctions.auctionCreatedAt * 1000}
                       duration={liveAuctions.duration * 60 * 60 * 1000}

@@ -9,7 +9,9 @@ import {
   nftMarketContractAddress,
 } from "../Utils/Contract";
 import { loadWeb3 } from "../../components/Api/api";
-
+import CountdownTimer from "./Counter";
+import Countdown from "react-countdown";
+import moment from "moment";
 const initData = {
   pre_heading: "Auctions",
   heading: " All Auctions",
@@ -222,9 +224,6 @@ class AuctionsTwo extends Component {
       nftMarketContractAddress_Abi,
       nftMarketContractAddress
     );
-
-    const getAll = await getItems.methods.idToMarketItem(1).call();
-    console.log("getAll", getAll);
   };
   fetchImageObject = async () => {
     try {
@@ -374,7 +373,19 @@ class AuctionsTwo extends Component {
     // this.getLiveAuction();
     this.auction();
   }
+  completed = () => {
+    console.log("Timer has completed");
+  };
 
+  tick = (milliseconds) => {
+    console.log(milliseconds);
+  };
+
+  props = {
+    // timeLeft: 56000,
+    completeCallback: this.completed(),
+    tickCallback: this.tick(),
+  };
   render() {
     var { liveAuctions } = this.state;
     const { currentLoad } = this.state;
@@ -446,6 +457,24 @@ class AuctionsTwo extends Component {
                               className="countdown d-flex justify-content-center"
                               data-date={item?.bidEndTime}
                             />
+                            <CountdownTimer
+                              timeLeft={moment(item?.bidEndTime * 1000).diff(
+                                moment()
+                              )}
+                            />
+
+                            {console.log(
+                              "parseInt(Date.now()) / 1000",
+                              moment(item?.bidEndTime * 1000).diff(moment())
+                            )}
+
+                            {/* {console.log(" item?.bidEndTime", item?.bidEndTime)} */}
+                            {/* <Countdown
+                              date={item?.bidEndTime - Date.now().valueOf()}
+                              intervalDelay={0}
+                              precision={3}
+                              renderer={(props) => <div>{props.total}</div>}
+                            /> */}
                           </div>
                           <h5
                             onClick={() =>

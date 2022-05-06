@@ -166,7 +166,7 @@ export default function Auctionsbiding() {
             let getItemId = nftContractInstance.methods
               .tokenIdToItemId(ownadd, tokenid)
               .call();
-            const polygRes = nftContractInstance.methods
+            let polygRes = nftContractInstance.methods
               .idToMarketItem(getItemId)
               .call();
             toast.success("Approved Successfuly");
@@ -193,7 +193,6 @@ export default function Auctionsbiding() {
             from: acc,
             value: getListingPrice,
           });
-
         const getAll = await nftContractOf.methods
           .idToMarketItem(getItemId)
           .call();
@@ -202,16 +201,15 @@ export default function Auctionsbiding() {
           .post(`https://wire-nft.herokuapp.com/save_auction`, {
             itemId: getAll.itemId.toString(),
             tokenId: getAll.tokenId.toString(),
-            bidEndTime: getAll.bidEndTime,
+            bidEndTime: getAll.selecthere,
             isOnAuction: getAll.isOnAuction,
             sold: getAll.sold,
             nftContract: getAll.nftContract.toString(),
-            owner: getAll.owner.toString(),
+            owner: getAll.seller.toString(),
             price: getAll.price.toString(),
           })
           .then((response) => {
             console.log(response, "...ssssss");
-            toast.success("Approved Successfuly");
           })
           .catch((error) => {
             console.log(error, "..eeeeee");
@@ -278,7 +276,6 @@ export default function Auctionsbiding() {
                               Select Days
                             </option>
                             <option value="1" class="dropdown__select">
-                              {" "}
                               1 Day
                             </option>
                             <option value="3"> 3 Days</option>
